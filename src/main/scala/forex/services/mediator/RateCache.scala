@@ -14,11 +14,9 @@ import monocle.macros.syntax.lens._
 import scala.concurrent.ExecutionContext
 
 /** Used with a store to cache responses from a rate provider. */
-class RateCache[F[_]](config: RateCacheConfig, store: RateStore[F], provider: RateProvider[F])(implicit F: Effect[F], ec: ExecutionContext) {
+class RateCache[F[_]](config: RateCacheConfig, store: RateStore[F], provider: RateProvider[F])(implicit F: Effect[F]) {
 
-  val interrupter: F[Signal[F, Boolean]] = Signal(false)
-
-  def turnOn: IO[IO[Unit]] =
+  def turnOn(implicit ec: ExecutionContext): IO[IO[Unit]] =
     for {
       interrupter <- Signal[IO, Boolean](false)
       _ <- agingStream(interrupter).compile.drain.runAsync(_ => IO.unit)
@@ -32,7 +30,7 @@ class RateCache[F[_]](config: RateCacheConfig, store: RateStore[F], provider: Ra
       { F.pure }
     } yield ratePoint.rate
 
-  private def agingStream(interrupter: Signal[IO, Boolean]): Stream[IO, Unit] =
+  private def agingStream(interrupter: Signal[IO, Boolean])(implicit ec: ExecutionContext): Stream[IO, Unit] =
     Scheduler[IO](config.poolSize)
       .flatMap[Unit](_
         .awakeEvery[IO](config.tick.seconds)

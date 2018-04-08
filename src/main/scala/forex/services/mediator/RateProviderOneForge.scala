@@ -16,7 +16,7 @@ class RateProviderOneForge[F[_]](client: Client[F], config: OneForgeConfig)(impl
     Uri.unsafeFromString(s"https://forex.1forge.com/1.0.3/quotes?pairs=${pair.show}&api_key=${config.key}")
 
   override def get(pair: Rate.Pair): F[Rate] =
-    client.expect[OneForgeResponse](uri(pair)).map(_.toRate(pair))
+    client.expect[Array[OneForgeResponse]](uri(pair))(jsonOf[F, Array[OneForgeResponse]]).map(_.head.toRate(pair))
 }
 
 object RateProviderOneForge {
@@ -31,7 +31,5 @@ object RateProviderOneForge {
   object OneForgeResponse {
 
     implicit val decoder: Decoder[OneForgeResponse] = deriveDecoder
-
-    implicit def entityDecoder[F[_]: Sync]: EntityDecoder[F, OneForgeResponse] = jsonOf[F, OneForgeResponse]
   }
 }
