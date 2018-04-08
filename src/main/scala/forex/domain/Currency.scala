@@ -3,6 +3,8 @@ package forex.domain
 import cats.Show
 import io.circe._
 
+import scala.util.Try
+
 sealed trait Currency
 object Currency {
   final case object AUD extends Currency
@@ -42,4 +44,6 @@ object Currency {
   implicit val encoder: Encoder[Currency] =
     Encoder.instance[Currency] { show.show _ andThen Json.fromString }
 
+  implicit val decoder: Decoder[Currency] =
+    Decoder[String].emapTry(str => Try(fromString(str)))
 }
