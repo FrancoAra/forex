@@ -15,4 +15,4 @@ trait CatsIOSupport {
 
 }
 
-object CatsIOSupport extends MonixTaskSupport
+object CatsIOSupport extends CatsIOSupport
