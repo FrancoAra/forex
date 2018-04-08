@@ -1,8 +1,37 @@
 package forex.services.mediator
 
-import forex.domain.Rate
+import cats.effect.Sync
+import cats.implicits._
+import forex.domain.{Price, Rate, Timestamp}
+import forex.services.mediator.RateProviderOneForge.{OneForgeConfig, OneForgeResponse}
+import io.circe.Decoder
+import io.circe.generic.semiauto.deriveDecoder
+import org.http4s.{EntityDecoder, Uri}
+import org.http4s.client.Client
+import org.http4s.circe._
 
-class RateProviderOneForge[F[_]]() extends RateProvider[F] {
+class RateProviderOneForge[F[_]](client: Client[F], config: OneForgeConfig)(implicit F: Sync[F]) extends RateProvider[F] {
 
-  override def get(pair: Rate.Pair) = ???
+  def uri(pair: Rate.Pair): Uri =
+    Uri.unsafeFromString(s"https://forex.1forge.com/1.0.3/quotes?pairs=${pair.show}&api_key=${config.key}")
+
+  override def get(pair: Rate.Pair): F[Rate] =
+    client.expect[OneForgeResponse](uri(pair)).map(_.toRate(pair))
+}
+
+object RateProviderOneForge {
+
+  case class OneForgeConfig(key: String)
+
+  case class OneForgeResponse(price: BigDecimal, timestamp: Long) {
+
+    def toRate(pair: Rate.Pair): Rate = Rate(pair, Price(price), Timestamp(timestamp))
+  }
+
+  object OneForgeResponse {
+
+    implicit val decoder: Decoder[OneForgeResponse] = deriveDecoder
+
+    implicit def entityDecoder[F[_]: Sync]: EntityDecoder[F, OneForgeResponse] = jsonOf[F, OneForgeResponse]
+  }
 }

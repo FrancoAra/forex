@@ -44,6 +44,8 @@ lazy val dependencies = Seq(
     "co.fs2"                         %% "fs2-core"             % "0.10.3",
     "com.github.julien-truffaut"     %% "monocle-core"         % "1.5.1-cats",
     "com.github.julien-truffaut"     %% "monocle-macro"        % "1.5.1-cats",
+    "org.http4s"                     %% "http4s-blaze-client"  % "0.18.7",
+    "org.http4s"                     %% "http4s-circe"         % "0.18.7",
     "org.zalando"                    %% "grafter"              % "2.3.0",
     "ch.qos.logback"                 %  "logback-classic"      % "1.2.3",
     "com.typesafe.scala-logging"     %% "scala-logging"        % "3.7.2",
