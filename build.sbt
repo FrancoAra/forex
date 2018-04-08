@@ -4,6 +4,7 @@ lazy val IntegrationTest = config("it") extend Test
 lazy val forex = project.in(file("."))
   .configs(IntegrationTest extend Test)
   .settings(Defaults.itSettings)
+  .settings(parallelExecution in IntegrationTest := false)
   .settings(dependencies)
   .settings(compilerSettings)
   .settings(
@@ -41,6 +42,8 @@ lazy val dependencies = Seq(
     "org.atnos"                      %% "eff-monix"            % "5.0.0",
     "org.typelevel"                  %% "cats-core"            % "1.1.0",
     "co.fs2"                         %% "fs2-core"             % "0.10.3",
+    "com.github.julien-truffaut"     %% "monocle-core"         % "1.5.1-cats",
+    "com.github.julien-truffaut"     %% "monocle-macro"        % "1.5.1-cats",
     "org.zalando"                    %% "grafter"              % "2.3.0",
     "ch.qos.logback"                 %  "logback-classic"      % "1.2.3",
     "com.typesafe.scala-logging"     %% "scala-logging"        % "3.7.2",

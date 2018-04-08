@@ -1,7 +1,8 @@
 package forex.domain
 
-import cats.Show
+import cats.{Order, Show}
 import io.circe._
+import cats.implicits._
 
 import scala.util.Try
 
@@ -46,4 +47,7 @@ object Currency {
 
   implicit val decoder: Decoder[Currency] =
     Decoder[String].emapTry(str => Try(fromString(str)))
+
+  implicit val order: Order[Currency] =
+    catsKernelStdOrderForString.contramap(_.show)
 }
